@@ -5,7 +5,7 @@
 
 Forked and detached from [micrograd](https://github.com/karpathy/micrograd) (don't look,
 spoilers!), for educational purposes. This tiny API for machine learning has all the same bite as
-the original, but none of the functions are written! THey have been replaced with `TODO` items and
+the original, but none of the functions are written! They have been replaced with `TODO` items and
 `NotImplementedError`s for students to complete.
 
 ### Installation
