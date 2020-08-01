@@ -1,8 +1,8 @@
 import random
 from micrograd.engine import Value
 
-class Module:
 
+class Module:
     def zero_grad(self):
         for p in self.parameters():
             p.grad = 0
@@ -10,6 +10,7 @@ class Module:
     def parameters(self):
         return []
 
+    
 class Neuron(Module):
 
     def __init__(self, nin, nonlin=True):
@@ -18,43 +19,80 @@ class Neuron(Module):
         self.nonlin = nonlin
 
     def __call__(self, x):
-        act = sum((wi*xi for wi,xi in zip(self.w, x)), self.b)
-        return act.relu() if self.nonlin else act
+        """Perform the neuron's forward pass computation (inference). 
+
+        :param x: a list of Value objects, i.e. a vector.
+        :returns: a Value object containing relu(w^T x + b) if self.nonlin, else w^T x + b.
+
+        """
+        
+        raise NotImplementedError('TODO: Neuron.__call__')
 
     def parameters(self):
-        return self.w + [self.b]
+        """Return the list of Value objects which make up the weights for this neuron.
+
+        :returns: list of weight Values, with w terms then the bias term last.
+
+        """
+        raise NotImplementedError('TODO: Neuron.parameters')
 
     def __repr__(self):
         return f"{'ReLU' if self.nonlin else 'Linear'}Neuron({len(self.w)})"
 
+    
 class Layer(Module):
 
     def __init__(self, nin, nout, **kwargs):
         self.neurons = [Neuron(nin, **kwargs) for _ in range(nout)]
 
     def __call__(self, x):
-        out = [n(x) for n in self.neurons]
-        return out[0] if len(out) == 1 else out
+        """FIXME! briefly describe function
+
+        :param x: a list of Value objects, i.e. a vector.
+        :returns: a list of Value objects, if nin > 1, else a single Value object.
+
+        """
+        raise NotImplementedError('Layer.__call__')
 
     def parameters(self):
-        return [p for n in self.neurons for p in n.parameters()]
+        """Get the parameters for this neuron.
+
+        If the lsit of neurons is ns, then the order should be 
+        [ns[0].parameters()[0], ns[0].parameters()[1], ..., ns[0].parameters()[-1],
+         ns[1].parameters()[0], ns[1].parameters()[1], ..., ns[1].parameters()[-1],
+         ...,
+         ns[-1].parameters()[0], ns[-1].parameters()[1], ..., ns[-1].parameters()[-1]
+        ]
+        
+        But DO NOT call parameters() this many times. This function can be a one-liner.
+
+        :returns: list of Value objects for the parameters in self.
+
+        """
+        
+        raise NotImplementedError('Layer.parameters')
 
     def __repr__(self):
         return f"Layer of [{', '.join(str(n) for n in self.neurons)}]"
 
+    
 class MLP(Module):
-
     def __init__(self, nin, nouts):
-        sz = [nin] + nouts
-        self.layers = [Layer(sz[i], sz[i+1], nonlin=i!=len(nouts)-1) for i in range(len(nouts))]
+        """Construct the multi-layer perceptron (fully-connected network).
+
+        :param nin: input dimension of the network.
+        :param nouts: list of layer output sizes for each layer in the network.
+
+        """
+        raise NotImplementedError('MLP.__init__')
 
     def __call__(self, x):
-        for layer in self.layers:
-            x = layer(x)
-        return x
+        """Forward pass for this neural network."""
+        raise NotImplementedError('MLP.__call__')
 
     def parameters(self):
-        return [p for layer in self.layers for p in layer.parameters()]
+        """Get the parameters of the neural network in the same order as the layers."""
+        raise NotImplementedError('MLP.parameters')
 
     def __repr__(self):
         return f"MLP of [{', '.join(str(layer) for layer in self.layers)}]"
