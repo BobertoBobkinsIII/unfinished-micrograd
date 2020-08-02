@@ -113,10 +113,9 @@ class Value:
         return self*other
 
     def __truediv__(self, other): # self / other
-        return Value(self.data/other.data,children=(self,other),op="/")
+        return self*other**-1
 
     def __rtruediv__(self, other): # other / self
-        raise NotImplementedError('rtruediv')
-
+        return other*self**-1
     def __repr__(self):
         return f"Value(data={self.data}, grad={self.grad})"
