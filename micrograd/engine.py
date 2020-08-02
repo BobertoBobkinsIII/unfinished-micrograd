@@ -54,7 +54,7 @@ class Value:
         out = Value(self.data**other,children=(self,other)op='**')
 
         def _backward():
-            raise NotImplementedError('TODO: backward for __pow__')
+            self.grad += other*self.data**(other-1)
 
         out._backward = _backward
         return out
@@ -98,22 +98,22 @@ class Value:
             v._backward()
 
     def __neg__(self): # -self
-        raise NotImplementedError('neg')
+        return self*-1
 
     def __radd__(self, other): # other + self
-        raise NotImplementedError('radd')
+        return self+other
 
     def __sub__(self, other): # self - other
-        raise NotImplementedError('sub')
+        return self+(-other)
 
     def __rsub__(self, other): # other - self
-        raise NotImplementedError('rsub')
+        return other + (-self)
 
     def __rmul__(self, other): # other * self
-        raise NotImplementedError('rmul')
+        return self*other
 
     def __truediv__(self, other): # self / other
-        raise NotImplementedError('truediv')
+        return Value(self.data/other.data,children=(self,other),op="/")
 
     def __rtruediv__(self, other): # other / self
         raise NotImplementedError('rtruediv')
