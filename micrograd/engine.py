@@ -27,11 +27,11 @@ class Value:
         """
         other = other if isinstance(other, Value) else Value(other)
 
-        out = None
-        raise NotImplementedError('TODO: __add__')
+        out = Value(self.data+other.data,children=(self,other),op='+')
 
         def _backward():
-            raise NotImplementedError('TODO: backward for __add__')
+            self.grad+=1
+            other.grad+=1
         
         out._backward = _backward
         return out
@@ -39,11 +39,11 @@ class Value:
     def __mul__(self, other):
         other = other if isinstance(other, Value) else Value(other)
 
-        out = None
-        raise NotImplementedError('TODO: __mul__')
+        out = Value(self.data*other.data,children=(self,other),op='*')
 
         def _backward():
-            raise NotImplementedError('TODO: backward for __mul__')
+            self.grad+=other.data
+            other.grad+=self.data
 
         out._backward = _backward
         return out
@@ -51,8 +51,7 @@ class Value:
     def __pow__(self, other):
         assert isinstance(other, (int, float)), "only supporting int/float powers for now"
 
-        out = None
-        raise NotImplementedError('TODO: __pow__')
+        out = Value(self.data**other,children=(self,other)op='**')
 
         def _backward():
             raise NotImplementedError('TODO: backward for __pow__')
@@ -61,11 +60,13 @@ class Value:
         return out
 
     def relu(self):
-        out = None
-        raise NotImplementedError('TODO: relu')
-
+        out = Value(np.max(np.array([0,self.data])),children=(self),op='ReLU')
+        
         def _backward():
-            raise NotImplementedError('TODO: backward for relu')
+            if self.data <= 0:
+                self.grad += 0
+            if self.data > 0:
+                self.grad += 1
         
         out._backward = _backward
         return out
