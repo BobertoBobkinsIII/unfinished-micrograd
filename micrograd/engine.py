@@ -27,7 +27,7 @@ class Value:
         """
         other = other if isinstance(other, Value) else Value(other)
 
-        out = Value(self.data+other.data,children=(self,other),op='+')
+        out = Value(self.data+other.data,_children=(self,other),_op='+')
 
         def _backward():
             self.grad+=1
@@ -39,7 +39,7 @@ class Value:
     def __mul__(self, other):
         other = other if isinstance(other, Value) else Value(other)
 
-        out = Value(self.data*other.data,children=(self,other),op='*')
+        out = Value(self.data*other.data,_children=(self,other),_op='*')
 
         def _backward():
             self.grad+=other.data
@@ -51,7 +51,7 @@ class Value:
     def __pow__(self, other):
         assert isinstance(other, (int, float)), "only supporting int/float powers for now"
 
-        out = Value(self.data**other,children=(self,other)op='**')
+        out = Value(self.data**other,_children=(self,other),_op='**')
 
         def _backward():
             self.grad += other*self.data**(other-1)
@@ -60,7 +60,7 @@ class Value:
         return out
 
     def relu(self):
-        out = Value(np.max(np.array([0,self.data])),children=(self),op='ReLU')
+        out = Value(np.max(np.array([0,self.data])),_children=(self),_op='ReLU')
         
         def _backward():
             if self.data <= 0:
