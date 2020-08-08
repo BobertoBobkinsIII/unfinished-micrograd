@@ -15,7 +15,7 @@ class Neuron(Module):
 
     def __init__(self, nin, nonlin=True):
         self.w = [Value(random.uniform(-1,1)) for _ in range(nin)]
-        self.b = Value(0)
+        self.b = Value(random.uniform(-1,1))
         self.nonlin = nonlin
 
     def __call__(self, x):
@@ -25,8 +25,11 @@ class Neuron(Module):
         :returns: a Value object containing relu(w^T x + b) if self.nonlin, else w^T x + b.
 
         """
-        
-        raise NotImplementedError('TODO: Neuron.__call__')
+        out = x*self.w+self.b
+        if self.nonlin:
+            return out.relu()
+        else:
+            return out
 
     def parameters(self):
         """Return the list of Value objects which make up the weights for this neuron.
@@ -34,7 +37,11 @@ class Neuron(Module):
         :returns: list of weight Values, with w terms then the bias term last.
 
         """
-        raise NotImplementedError('TODO: Neuron.parameters')
+        parameters = []
+        for w in self.w:
+            parameters.append(w)
+        parameters.append(self.b)
+        return parameters
 
     def __repr__(self):
         return f"{'ReLU' if self.nonlin else 'Linear'}Neuron({len(self.w)})"
@@ -46,7 +53,7 @@ class Layer(Module):
         self.neurons = [Neuron(nin, **kwargs) for _ in range(nout)]
 
     def __call__(self, x):
-        """FIXME! briefly describe function
+        """A forward pass through the layer
 
         :param x: a list of Value objects, i.e. a vector.
         :returns: a list of Value objects, if nin > 1, else a single Value object.
@@ -69,8 +76,8 @@ class Layer(Module):
         :returns: list of Value objects for the parameters in self.
 
         """
-        
-        raise NotImplementedError('Layer.parameters')
+        self.parameters = [*param.parameters() for param in self.neurons]
+        return self.parameters
 
     def __repr__(self):
         return f"Layer of [{', '.join(str(n) for n in self.neurons)}]"
@@ -84,15 +91,24 @@ class MLP(Module):
         :param nouts: list of layer output sizes for each layer in the network.
 
         """
-        raise NotImplementedError('MLP.__init__')
+        self.layers = []
+        prev = nin
+        for layer in range(len(nouts)):
+            self.layers.append(Layer(prev,nouts[layer]))
+            prev = nouts[layer]
 
     def __call__(self, x):
         """Forward pass for this neural network."""
-        raise NotImplementedError('MLP.__call__')
+        for layer in self.layers:
+            x = layer(x)
+        return x
 
     def parameters(self):
         """Get the parameters of the neural network in the same order as the layers."""
-        raise NotImplementedError('MLP.parameters')
+        self.parameters  = []
+        for layer in self.layers:
+            self.parameters.append(*layer.parameters())
+
 
     def __repr__(self):
         return f"MLP of [{', '.join(str(layer) for layer in self.layers)}]"
