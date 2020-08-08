@@ -59,7 +59,7 @@ class Layer(Module):
         :returns: a list of Value objects, if nin > 1, else a single Value object.
 
         """
-        raise NotImplementedError('Layer.__call__')
+        return [neuron(x) for neuron in self.neurons]
 
     def parameters(self):
         """Get the parameters for this neuron.
