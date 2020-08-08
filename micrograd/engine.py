@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 
 class Value:
     """Stores a scalar or vector value and its gradient.
