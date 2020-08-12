@@ -7,6 +7,7 @@ def test_sanity_check():
     z = 2 * x + 2 + x
     q = z.relu() + z * x
     h = (z * z).relu()
+    htcp = h
     y = h + q + q * x
     y.backward()
     xmg, ymg = x, y
@@ -15,18 +16,25 @@ def test_sanity_check():
     x.requires_grad = True
     z = 2 * x + 2 + x
     q = z.relu() + z * x
-    h = (z * z).relu()
+    h = torch.Tensor([(z * z).relu()])
+    h.requires_grad = True
+    hcp = h
     y = h + q + q * x
     y.backward()
     xpt, ypt = x, y
 
+
     # forward pass went well
+    print(htcp, hcp.grad, hcp)
+    print('that was h')
+    print(xpt,xpt.grad)
+    print(xmg)
+
     assert ymg.data == ypt.data.item()
     # backward pass went well
     assert xmg.grad == xpt.grad.item()
 
 def test_more_ops():
-
     a = Value(-4.0)
     b = Value(2.0)
     c = a + b
@@ -69,3 +77,4 @@ def test_more_ops():
 
 if __name__ == '__main__':
     test_sanity_check()
+    test_more_ops()

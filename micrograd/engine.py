@@ -30,8 +30,8 @@ class Value:
         out = Value(self.data+other.data,_children=(self,other),_op='+')
 
         def _backward():
-            self.grad+=1
-            other.grad+=1
+            self.grad+=1*out.grad
+            other.grad+=1*out.grad
         
         out._backward = _backward
         return out
@@ -42,11 +42,11 @@ class Value:
         out = Value(self.data*other.data,_children=(self,other),_op='*')
 
         def _backward():
-            self.grad+=other.data
-            other.grad+=self.data
+            self.grad+=other.data*out.grad
+            other.grad+=self.data*out.grad
 
         out._backward = _backward
-        return out
+        return out  
 
     def __pow__(self, other):
         assert isinstance(other, (int, float)), "only supporting int/float powers for now"
@@ -54,21 +54,19 @@ class Value:
         out = Value(self.data**other,_children=(self,other),_op='**')
 
         def _backward():
-            self.grad += other*self.data**(other-1)
+            self.grad += (other*self.data**(other-1))*out.grad
 
         out._backward = _backward
         return out
 
     def relu(self):
-        out = Value(np.max(np.array([0,self.data])),_children=(self),_op='ReLU')
+        out = Value(self.data if self.data > 0 else 0 ,_children=(self,),_op='ReLU')
         
         def _backward():
-            if self.data <= 0:
-                self.grad += 0
-            if self.data > 0:
-                self.grad += 1
+            self.grad += (1 if out.data > 0 else 0) * out.grad
         
         out._backward = _backward
+
         return out
 
     def backward(self):
