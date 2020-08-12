@@ -25,7 +25,8 @@ class Neuron(Module):
         :returns: a Value object containing relu(w^T x + b) if self.nonlin, else w^T x + b.
 
         """
-        out = x*self.w+self.b
+        out = sum(inp*w for w,inp in zip(self.w,x))+self.b
+        
         if self.nonlin:
             return out.relu()
         else:
@@ -76,7 +77,7 @@ class Layer(Module):
         :returns: list of Value objects for the parameters in self.
 
         """
-        self.parameters = [*param.parameters() for param in self.neurons]
+        self.parameters = [param.parameters() for param in self.neurons]
         return self.parameters
 
     def __repr__(self):
@@ -107,7 +108,7 @@ class MLP(Module):
         """Get the parameters of the neural network in the same order as the layers."""
         self.parameters  = []
         for layer in self.layers:
-            self.parameters.append(*layer.parameters())
+            self.parameters.append(layer.parameters())
 
 
     def __repr__(self):
