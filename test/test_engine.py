@@ -1,5 +1,56 @@
+"""Install pytest and run `pytest unit_tests.py`"""
+
+
 import torch
 from micrograd.engine import Value
+
+def compare(func, *inputs):
+    """Compare torch and micrograd implementations for func, applied to inputs.
+
+    `func` takes in any number of arguments, each of which is a Value or size-1 Tesnor and returns
+    any number of outputs.
+    
+    :param func: a mathematical function using Value or Tensor primitive functions. 
+    :param inputs: a list of scalars, which are arguments to func.
+    :returns: 
+    :rtype:
+
+    """
+    assert len(inputs) > 0
+
+    vs = [Value(x) for x in inputs]
+    ts = [torch.Tensor([x]) for x in inputs]
+    for t in ts:
+        t.requires_grad = True
+        
+    # micrograd, pytorch output
+    ov = func(*vs)
+    ot = func(*ts)
+    assert ov.data == ot.data.item(), f'values: {ov} != {ot}'
+
+    ov.backward()
+    ot.backward()
+    for v, t in zip(vs, ts):
+        assert v.grad == t.grad.item(), f'gradients: {v} != {t}'
+  
+  
+def test_add():
+    def add(x, y):
+        return x + y
+    compare(add, 5, 6)
+
+
+def test_mul():
+    pass
+
+
+def test_pow():
+    pass
+
+
+
+
+  
 
 def test_sanity_check():
 
@@ -74,5 +125,7 @@ def test_more_ops():
     assert abs(amg.grad - apt.grad.item()) < tol
     assert abs(bmg.grad - bpt.grad.item()) < tol
 
-test_sanity_check()
-test_more_ops()
+
+if __name__ == '__main__':
+    test_sanity_check()
+    test_more_ops()
