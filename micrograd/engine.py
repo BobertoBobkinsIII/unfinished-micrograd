@@ -42,8 +42,8 @@ class Value:
         out = Value(self.data*other.data,_children=(self,other),_op='*')
 
         def _backward():
-            self.grad+=other.data*out.grad
-            other.grad+=self.data*out.grad
+            self.grad+= other.data * out.grad
+            other.grad+= self.data * out.grad
 
         out._backward = _backward
         return out  
@@ -54,7 +54,7 @@ class Value:
         out = Value(self.data**other,_children=(self,other),_op='**')
 
         def _backward():
-            self.grad += (other*self.data**(other-1))*out.grad
+            self.grad += (other*(self**(other-1)))*out.grad
 
         out._backward = _backward
         return out
@@ -63,7 +63,7 @@ class Value:
         out = Value(self.data if self.data > 0 else 0 ,_children=(self,),_op='ReLU')
         
         def _backward():
-            self.grad += (1 if out.data > 0 else 0) * out.grad
+            self.grad += (0 if out.data < 0 else 1) * out.grad
         
         out._backward = _backward
 
