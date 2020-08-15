@@ -1,7 +1,6 @@
 import random
 from micrograd.engine import Value
 
-
 class Module:
     def zero_grad(self):
         for p in self.parameters():
@@ -77,7 +76,10 @@ class Layer(Module):
         :returns: list of Value objects for the parameters in self.
 
         """
-        self.parameters = [param.parameters() for param in self.neurons]
+        self.parameters = []
+        for neuron in self.neurons:
+            self.parameters = [*self.parameters,*neuron.parameters()]
+       
         return self.parameters
 
     def __repr__(self):
@@ -106,10 +108,11 @@ class MLP(Module):
 
     def parameters(self):
         """Get the parameters of the neural network in the same order as the layers."""
-        self.parameters  = []
+        self.parameters = []
         for layer in self.layers:
-            self.parameters.append(layer.parameters())
-
+            self.parameters = [*self.parameters,*layer.parameters()]
+        return self.parameters
 
     def __repr__(self):
         return f"MLP of [{', '.join(str(layer) for layer in self.layers)}]"
+    
